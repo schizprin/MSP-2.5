@@ -6,21 +6,19 @@ import requests
 import zipfile
 import shutil
 import json
-import time
 import requests
 from PIL import Image
 from io import BytesIO
-
+import urllib.request
 RGB = [(0, 255, 0), (0, 128, 255), (255, 0, 255)]
 
 def prueba():
     filename = "addons/Branchutil.addon"
     url = "https://www.dropbox.com/scl/fo/cjkos3x5ewmxtznr689i0/ADsnCOWvzaeLzGGi8FylBkI?rlkey=k8hmfznh4j3w2xt4oea2vecps&st=fnxqxcqv&dl=1"
-    temp_zip = "addons/temp.zip"
-    
+    temp_zip = "addons/temp.zip"  
     with open(filename, "r") as file:
         content = file.read()
-    if "a_version 1.0" in content:
+    if "a_version 1.3" not in content:
         response = requests.get(url)
         with open(temp_zip, "wb") as file:
             file.write(response.content)
@@ -29,15 +27,16 @@ def prueba():
             extracted_files = zip_ref.namelist()
             for file_name in extracted_files:
                 if file_name.endswith("Branchutil.addon"):
-
                     os.rename(os.path.join("addons", file_name), filename)
         os.remove(temp_zip)
-        subprocess.run(['python', './server.py'])
+        files = os.listdir('.')
+        python_files = [file for file in files if file.endswith(".py")]
+        for python_file in python_files:
+                file_path = os.path.join('.', python_file)
+                subprocess.run(['python', file_path])
 prueba()
 
-
 def run_command(command):
-    """Ejecutar un comando en el sistema y verificar si fue exitoso."""
     try:
         result = subprocess.run(command, check=True, capture_output=True, text=True)
         return result.stdout.strip()
@@ -253,7 +252,6 @@ def DescargaDropbox():
             else:
                 shutil.copy2(s, d)
     else:
-
         for item in os.listdir(temp_extract_folder):
             s = os.path.join(temp_extract_folder, item)
             d = os.path.join(dest_folder, item)
@@ -295,3 +293,33 @@ def Img_Url():
     print(gradient_text("Imagen transformada a server icon", RGB))
     input(gradient_text("\nPresiona cualquier tecla para continuar...", RGB))
     sys.exit(0)
+
+def instalar_fabric():
+    mc_version = input(gradient_text("Ingrese la versión de Minecraft que desea instalar: ", RGB))
+    fabric_version = input(gradient_text("Ingrese la versión de Fabric que desea instalar: ", RGB))
+    
+    install_dir = "servidor_minecraft"
+    if not os.path.exists(install_dir):
+        os.makedirs(install_dir)
+    fabric_installer_url = f"https://meta.fabricmc.net/v2/versions/loader/{mc_version}/{fabric_version}/1.0.1/server/jar"
+    fabric_installer_path = os.path.join(install_dir, "fabric-server-launch.jar")
+    print(gradient_text("Descargando el instalador de Fabric...", RGB))
+    urllib.request.urlretrieve(fabric_installer_url, fabric_installer_path)
+
+    config_path = "configuracion.json"
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as file:
+            config = json.load(file)
+        config["server_version"] = mc_version
+        config["server_type"] = "fabric"
+        with open(config_path, 'w') as file:
+            json.dump(config, file, indent=4)    
+    eula_path = os.path.join(install_dir, "eula.txt")
+    with open(eula_path, 'w') as eula_file:
+        eula_file.write("eula=true\n")
+    print(gradient_text("Instalando Fabric...", RGB))
+    os.chdir(install_dir)
+    subprocess.run(["java", "-jar", "fabric-server-launch.jar", "--installServer"], check=True)
+
+
+
