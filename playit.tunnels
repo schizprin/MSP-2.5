@@ -6,7 +6,7 @@
   },
   "tunnels": [
     {
-      "active": false,
+      "active": true,
       "alloc": {
         "data": {
           "assigned_domain": "graphics-catholic.gl.joinmc.link",
@@ -51,7 +51,7 @@
       "tunnel_type": "minecraft-java"
     },
     {
-      "active": false,
+      "active": true,
       "alloc": {
         "data": {
           "assigned_domain": "income-za.gl.at.ply.gg",
@@ -96,7 +96,7 @@
       "tunnel_type": "minecraft-bedrock"
     },
     {
-      "active": true,
+      "active": false,
       "alloc": {
         "data": {
           "assigned_domain": "pics-tm.gl.joinmc.link",
